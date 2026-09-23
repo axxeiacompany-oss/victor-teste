@@ -1,0 +1,6 @@
+{
+  "name": "Asistente Virtual Chapa y Pintura Automotriz",
+  "description": "Asistente virtual profesional para taller especializado en chapa, pintura y reparación automotriz con cotización y agendamiento.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
