@@ -60,7 +60,7 @@ export interface AppointmentBooking {
   createdAt: string;
 }
 
-export type AppLanguage = 'es' | 'pt';
+export type AppLanguage = 'es' | 'pt' | 'en';
 
 export interface DamageAnalysisResult {
   panelIdentified: string;

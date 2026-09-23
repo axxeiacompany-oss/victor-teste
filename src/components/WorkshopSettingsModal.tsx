@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Save, RotateCcw, Building2, Crown } from 'lucide-react';
+import { X, Save, RotateCcw, Building2, Crown, Check } from 'lucide-react';
 import { AppLanguage, WorkshopInfo } from '../types';
 import { DEFAULT_WORKSHOP_INFO } from '../data/workshopDefaults';
 
@@ -20,13 +20,14 @@ export const WorkshopSettingsModal: React.FC<WorkshopSettingsModalProps> = ({
 }) => {
   const isPt = language === 'pt';
   const [formData, setFormData] = useState<WorkshopInfo>({ ...workshopInfo });
+  const [resetNotice, setResetNotice] = useState(false);
 
   if (!isOpen) return null;
 
   const handleReset = () => {
-    if (window.confirm(isPt ? 'Deseja redefinir os dados para os valores padrão do atelier?' : '¿Desea restablecer todos los datos del atelier a los valores oficiales predeterminados?')) {
-      setFormData({ ...DEFAULT_WORKSHOP_INFO });
-    }
+    setFormData({ ...DEFAULT_WORKSHOP_INFO });
+    setResetNotice(true);
+    setTimeout(() => setResetNotice(false), 2500);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -63,6 +64,13 @@ export const WorkshopSettingsModal: React.FC<WorkshopSettingsModalProps> = ({
 
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[70vh] overflow-y-auto text-xs sm:text-sm font-light">
+          {resetNotice && (
+            <div className="bg-emerald-950/70 border border-emerald-500/40 text-emerald-200 px-4 py-2.5 rounded-xl text-xs flex items-center gap-2">
+              <Check className="w-4 h-4 text-emerald-400" />
+              <span>{isPt ? 'Valores padrão do atelier restaurados.' : 'Valores oficiales del atelier restaurados.'}</span>
+            </div>
+          )}
+
           <div>
             <label className="block font-semibold text-slate-300 mb-1 font-serif-luxury tracking-wide">
               {isPt ? 'Nome do Atelier / Empresa' : 'Nombre del Atelier / Empresa'}

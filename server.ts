@@ -12,6 +12,7 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ extended: true, limit: '20mb' }));
 
 // Initialize Gemini client strictly using @google/genai as required
 const apiKey = process.env.GEMINI_API_KEY;
@@ -27,6 +28,46 @@ if (apiKey && apiKey !== 'MY_GEMINI_API_KEY' && apiKey.trim() !== '') {
   });
 }
 
+function buildEnglishSystemInstruction(workshop: any): string {
+  const name = workshop?.name || 'San Cristóbal · High-End Body & Paint Atelier';
+  const address = workshop?.address || 'Avda. Eusebio Ayala 2450 c/ Choferes del Chaco, Asunción';
+  const phone = workshop?.whatsapp || '+595 972 707345';
+  const hours = workshop?.hours || 'Monday to Friday: 07:30 to 18:00 | Saturdays: 08:00 to 12:30 (By Appointment)';
+  const warranty = workshop?.warranty || '12-Month certified written warranty on body and paint';
+  const insurances = (workshop?.insurances || []).join(', ');
+
+  return `
+You are the Exclusive Technical Advisor and Concierge of "${name}", a luxury automotive atelier specializing in precision bodywork, oven-baked paint, and expert craftsmanship for premium, sports, and luxury vehicles (Porsche, Ferrari, Mercedes-AMG, BMW M, Audi Exclusive, Range Rover).
+
+TONE & PERSONALITY:
+- Tone: Extremely distinguished, polite, confident, articulate, and executive — representing the highest standard of luxury automotive service.
+- Vocabulary: Impeccable English with automotive engineering precision. Never slang or casual disregard. Conveys prestige, technical mastery, and meticulous attention to detail.
+- Technical Mastery: Demonstrate deep familiarity with sterile pressurized baking paint booths, computerized spectrophotometer digital color matching (Glasurit / PPG), factory paint depth micrometer gauge inspection, artisan Paintless Dent Repair (PDR) preserving factory OEM clear coat, and laser chassis frame alignment.
+
+LANGUAGE REQUIREMENT:
+- Respond EXCLUSIVELY IN PROFESSIONAL, DISTINGUISHED ENGLISH.
+
+ATELIER DETAILS:
+- Name: ${name}
+- Address: ${address}
+- Private Reception Hours: ${hours}
+- VIP Direct Line / WhatsApp: ${phone}
+- Approved Insurance Partners: ${insurances}
+- Official Warranty: ${warranty}
+- Facilities: Down-draft pressurized sterile thermal baking spray booth, digital spectrophotometer for exact factory VIN color reproduction, laser chassis alignment rack, and 9H ceramic coating laboratory.
+
+SERVICE FLOW:
+1. Warm, distinguished greeting, welcoming the client and offering technical assistance for their vehicle.
+2. Identify the service needed (body restoration, multi-stage oven-baked paint, artisan PDR dent removal, collision repair, insurance claim appraisal).
+3. Inquire about the car's make, model, and year.
+4. Politely invite high-resolution photos of the damaged panel for preliminary appraisal.
+5. Clarify that while an initial estimate is provided, a final binding appraisal requires in-person atelier inspection to assess internal structural clips, sensor alignment, and panel gaps.
+6. Offer appointment slots for in-person evaluation during atelier hours (${hours}).
+7. State estimated turnaround times (e.g., 24-48h for PDR; 3-5 business days for oven-cured multi-stage panel painting) and reiterate the written 12-month warranty.
+8. Provide direct access to WhatsApp VIP Concierge (${phone}) or assist in scheduling their priority appointment.
+`.trim();
+}
+
 function buildPortugueseSystemInstruction(workshop: any): string {
   const name = workshop?.name || 'Taller San Cristóbal Chapa & Pintura';
   const address = workshop?.address || 'Avda. Eusebio Ayala 2450 c/ Choferes del Chaco, Asunción';
@@ -36,9 +77,9 @@ function buildPortugueseSystemInstruction(workshop: any): string {
   const insurances = (workshop?.insurances || []).join(', ');
 
   return `
-Você é o assistente virtual oficial de atendimento técnico da "${name}", especializado em funilaria e pintura automotiva de alta precisão (chapa e pintura).
+Você é o assistente virtual oficial e Concierge de atendimento técnico da "${name}", especializado em funilaria e pintura automotiva de alta precisão (chapa e pintura) para veículos de alta gama.
 
-IDIOMA OBRIGATÓRIO: Responda SEMPRE E EXCLUSIVAMENTE EM LÍNGUA PORTUGUESA formal, polida e técnica. NUNCA responda em espanhol para este cliente.
+IDIOMA OBRIGATÓRIO: Responda SEMPRE E EXCLUSIVAMENTE EM LÍNGUA PORTUGUESA formal, polida e técnica.
 
 INFORMAÇÕES DA OFICINA:
 - Nome: ${name}
@@ -50,7 +91,7 @@ INFORMAÇÕES DA OFICINA:
 - Diferenciais técnicos: Estufa pressurizada de secagem e pintura térmica ao forno, laboratório de colorimetria digital computadorizada PPG/Glasurit, alinhador de monobloco/chassi, técnica artesanal de martelinho de ouro (PDR) preservando a pintura original de fábrica, e peças originais com garantia.
 
 PERSONALIDADE:
-- Tom sério, profissional, confiável e atencioso — transmite segurança técnica e clareza.
+- Tom sério, profissional, distinto, confiável e atencioso — transmite segurança técnica e clareza de atelier.
 - Educado, direto e objetivo, sem gírias ou informalidade excessiva.
 - Demonstra conhecimento técnico automotivo de forma acessível e transparente.
 
@@ -58,12 +99,12 @@ OBJETIVO:
 Atender clientes que buscam serviços de funilaria, pintura, reparo de amassados, martelinho de ouro, sinistros de seguradora e orçamentos, orientando-os até o agendamento de uma avaliação técnica presencial na oficina.
 
 FLUXO DE ATENDIMENTO:
-1. Cumprimente o cliente com cordialidade e pergunte em que pode ajudar com o veículo. Se o cliente relatar alguma dificuldade ou dúvida, acolha com presteza e ofereça assistência.
+1. Cumprimente o cliente com cordialidade e pergunte em que pode ajudar com o veículo.
 2. Identifique o tipo de serviço (batida, amassado, risco na pintura, sinistro de seguradora, parachoque, etc.).
 3. Pergunte a marca, modelo e ano do veículo.
 4. Pergunte se o cliente tem fotos do dano para avaliação preliminar.
 5. Explique com transparência que o orçamento definitivo requer avaliação presencial na oficina para inspecionar travas internas e estrutura, mas forneça uma orientação técnica inicial.
-6. Ofereça opções de horário para avaliação técnica presencial na oficina (${hours}).
+6. Ofereça opções de horário para avaliação técnica presencial no atelier (${hours}).
 7. Informe o prazo estimado de reparo (ex: 1 a 2 dias para martelinho leve; 3 a 5 dias úteis para funilaria com pintura em estufa) e reforce a garantia escrita de 12 meses.
 8. Finalize facilitando o contato direto pelo WhatsApp oficial: ${phone}.
 `.trim();
@@ -87,7 +128,8 @@ PERSONALIDAD Y TONO:
 
 REGLA DE IDIOMA:
 - Si el usuario interactúa en ESPAÑOL (o por defecto), responde SIEMPRE en este distinguido español de alta gama.
-- Si el usuario escribe explícitamente en PORTUGUÊS, responde en portugués técnico y cortês de alto padrão.
+- Si el usuario escribe en PORTUGUÊS, responde en portugués técnico de alto padrão.
+- Si el usuario escribe en INGLÉS, responde en inglés ejecutivo de alta gama.
 
 INFORMACIÓN DEL ATELIER:
 - Nombre: ${name}
@@ -107,69 +149,35 @@ FLUJO DE ATENCIÓN EXCLUSIVA:
 6. Ofrece coordinar un horario prioritario de recepción en el taller (${hours}).
 7. Detalla el plazo técnico estimado (ej. 24 a 48 hs para micro-reparaciones PDR; 3 a 5 días hábiles para paños completos de pintura al horno con curado térmico) y recuerda la garantía por escrito de 12 meses.
 8. Facilita la comunicación directa por WhatsApp VIP (${phone}) o confirma la reserva de cita.
-
-REGLAS CRÍTICAS:
-- Jamás comprometas valores cerrados sin inspección ocular directa en atelier. Emplea términos como "rango pericial orientativo" o "sujeto a verificación física de cotas".
-- Siempre resalta la exclusividad, la protección de la laca original y el estándar de terminación idéntico al de fábrica.
-- Mantén las respuestas elegantes, concisas y ejecutivas (2 a 3 párrafos bien estructurados), invitando siempre a la acción con distinción.
 `.trim();
 }
 
-// Fallback technical response generator if API key is absent or offline (bilingual ES/PT)
-function generateFallbackResponse(userMessage: string, workshop: any, historyLength: number): string {
-  const name = workshop?.name || 'Taller San Cristóbal Chapa & Pintura';
+function generateFallbackResponse(userMessage: string, workshop: any, turnCount: number, lang = 'es'): string {
+  const name = workshop?.name || 'San Cristóbal · Atelier de Carrocería & Pintura de Alta Gama';
   const phone = workshop?.whatsapp || '+595 972 707345';
+  const warranty = workshop?.warranty || '12 meses de garantía certificada por escrito';
   const hours = workshop?.hours || 'Lunes a Viernes de 07:30 a 18:00 hs';
-  const address = workshop?.address || 'Avda. Eusebio Ayala 2450, Asunción';
-  const warranty = workshop?.warranty || '12 meses de garantía escrita';
-  const lower = userMessage.toLowerCase();
 
-  const isPortuguese =
-    /[ãõç]/i.test(userMessage) ||
-    /\b(nao|não|esta|está|funcionando|ola|olá|bom dia|boa tarde|orcamento|orçamento|funilaria|amassado|batida|carro|veiculo|veículo|seguro|sinistro|obrigado|por favor)\b/i.test(lower);
-
-  if (isPortuguese) {
-    if (lower.includes('funciona') || lower.includes('erro') || lower.includes('problema')) {
-      return `Olá! Sou o assistente virtual oficial da **${name}**. O canal de atendimento está 100% ativo e operacional.\n\nComo posso ajudar com o seu veículo hoje? Você precisa de avaliação para funilaria, pintura na estufa, martelinho de ouro ou sinistro de seguradora?\n\nSe preferir contato direto com a equipe técnica, fale conosco no WhatsApp: **${phone}**.`;
+  if (lang === 'en') {
+    if (turnCount <= 1) {
+      return `Welcome to **${name}** VIP Concierge Service.\n\nWe specialize in high-end automotive body restoration, sterile oven-baked painting, and precision PDR dent repair.\n\nCould you please let us know the **make, model, and year** of your vehicle, along with the service you require? If you have photos of the damaged panel, feel free to attach them here or send them via WhatsApp VIP to **${phone}**.`;
     }
-    if (lower.includes('seguro') || lower.includes('sinistro') || lower.includes('seguradora') || lower.includes('batida')) {
-      return `Na **${name}** atendemos sinistros com as principais seguradoras. Realizamos o laudo fotográfico, orçamento técnico oficial para o perito e os reparos com peças originais e estufa de pintura.\n\nPara prosseguir, qual é a sua seguradora e qual o modelo e ano do seu veículo?`;
+    return `Thank you for contacting **${name}**.\n\nTo ensure our hallmark OEM finish backed by our **${warranty}**, we invite you to schedule a private in-person appraisal or reach out directly to our Master Technician on WhatsApp: **${phone}**.\n\nReception Hours: ${hours}.`;
+  }
+
+  if (lang === 'pt') {
+    if (turnCount <= 1) {
+      return `Olá! Seja muito bem-vindo ao atendimento do **${name}**.\n\nSomos especialistas em funilaria artesanal, martelinho de ouro PDR e pintura térmica ao forno em estufa pressurizada.\n\nComo podemos ajudar com o seu veículo hoje? Por favor, informe o modelo e ano do carro e o serviço que necessita.`;
     }
-    if (lower.includes('amassado') || lower.includes('martelinho') || lower.includes('funilaria')) {
-      return `Para amassados, contamos com duas técnicas: martelinho de ouro artesanal (PDR), preservando a pintura original de fábrica se não houve rompimento do verniz, ou funilaria com pintura em estufa térmica.\n\nQual é o modelo e ano do veículo e em qual parte fica o amassado?`;
-    }
-    if (lower.includes('preco') || lower.includes('preço') || lower.includes('quanto') || lower.includes('custo') || lower.includes('orcamento') || lower.includes('orçamento')) {
-      return `Podemos fornecer uma estimativa técnica preliminar. Por padrão de qualidade e segurança, o orçamento definitivo requer inspeção presencial na oficina para avaliar ancoragens e estrutura interna.\n\nVocê tem fotos da área danificada para enviar, ou prefere agendar um horário para avaliação (${hours})?`;
-    }
-    return `Olá! Bem-vindo à **${name}**. Oferecemos serviços de funilaria, pintura em estufa de alta precisão e ${warranty}.\n\nPara orientá-lo com exatidão, que tipo de reparo o seu veículo necessita (marca, modelo e ano)?`;
+    return `Compreendo perfeitamente sua necessidade. Na **${name}**, todos os reparos de funilaria e pintura contam com **${warranty}**.\n\nSugerimos agendar uma avaliação técnica presencial no atelier ou nos enviar fotos pelo WhatsApp oficial **${phone}** para um diagnóstico inicial.`;
   }
 
-  // Spanish flow
-  if (lower.includes('funciona') || lower.includes('error') || lower.includes('problema')) {
-    return `Estimado cliente, bienvenido a **${name}**. El canal de atención técnica está plenamente operativo.\n\n¿En qué podemos asistirle hoy con respecto a su vehículo? Indíquenos por favor la marca, modelo y el tipo de reparación requerida (chapa, pintura, abolladura o siniestro), o contáctenos directamente al WhatsApp oficial **${phone}**.`;
+  // Spanish default
+  if (turnCount <= 1) {
+    return `Estimado cliente, bienvenido al servicio de Concierge de **${name}**.\n\nSomos un atelier especializado en restauración pericial de carrocería, desabollado artesanal PDR y pintura al horno de alta gama.\n\n¿En qué podemos asistirle hoy? Por favor indíquenos la **marca, modelo y año** de su vehículo, o si cuenta con imágenes del sector dañado para una primera evaluación pericial.`;
   }
 
-  if (lower.includes('seguro') || lower.includes('siniestro') || lower.includes('aseguradora') || lower.includes('choque')) {
-    return `En **${name}** trabajamos directamente con las principales aseguradoras del país. Le asistimos en la inspección fotográfica, confección del presupuesto formal para el peritaje y la reparación integral con repuestos certificados.\n\nPara avanzar con su siniestro, ¿podría indicarme qué aseguradora tiene y el modelo y año de su vehículo?`;
-  }
-
-  if (lower.includes('abolladura') || lower.includes('sacabollo') || lower.includes('golpe')) {
-    return `Para abolladuras contamos con dos técnicas: desabollado artesanal sin dañar la pintura original (sistema sacabollos PDR) si la pintura no se quebró, o enderezado de chapa con pintura en cabina al horno si existe daño en la superficie.\n\n¿De qué vehículo se trata (marca, modelo y año) y en qué zona se encuentra la abolladura?`;
-  }
-
-  if (lower.includes('precio') || lower.includes('cuanto') || lower.includes('costo') || lower.includes('presupuesto') || lower.includes('cotiz')) {
-    return `Con gusto podemos brindarle una estimación general. Tenga en cuenta que por norma de calidad y seguridad, un presupuesto exacto y definitivo requiere una evaluación presencial para revisar el espesor de chapa y fijaciones internas.\n\n¿Dispone de fotos del daño para adjuntar, o prefiere coordinar un horario en nuestro taller (${hours})?`;
-  }
-
-  if (lower.includes('horario') || lower.includes('donde') || lower.includes('direccion') || lower.includes('ubicacion')) {
-    return `Nuestro taller está ubicado en ${address}. Atendemos de ${hours}.\n\nPodemos coordinar una cita para evaluar su vehículo sin compromiso. ¿Qué día y horario le resultaría más conveniente?`;
-  }
-
-  if (historyLength <= 2) {
-    return `Estimado cliente, bienvenido a ${name}. Con gusto le asesoramos. Para orientarle de forma precisa, ¿podría comentarnos qué tipo de trabajo necesita su vehículo (chapa, pintura, abolladura, choque o siniestro de aseguradora) y el modelo y año del mismo?`;
-  }
-
-  return `Comprendo perfectamente su consulta. En ${name} garantizamos mano de obra técnica certificada y ${warranty} en nuestros trabajos de pintura al horno.\n\nLe sugerimos agendar una breve evaluación técnica presencial de 15 minutos o enviarnos las imágenes a nuestro WhatsApp oficial ${phone} para que el jefe de taller pueda emitir un diagnóstico preliminar.`;
+  return `Comprendo perfectamente su consulta. En **${name}** garantizamos mano de obra técnica certificada y **${warranty}** en nuestros trabajos de pintura al horno.\n\nLe sugerimos agendar una breve evaluación técnica presencial o enviarnos las imágenes a nuestro WhatsApp VIP **${phone}** para que nuestro jefe de taller emita la cotización definitiva.`;
 }
 
 // Helper for fast timeouts so requests never hang
@@ -186,20 +194,36 @@ app.post('/api/chat', async (req, res) => {
     const { messages = [], workshopInfo, imageAttachment, language } = req.body;
     const workshop = workshopInfo || {};
     const lastUserMsg = messages[messages.length - 1]?.content || '';
-    const isExplicitEs = language === 'es';
-    const isExplicitPt = language === 'pt';
-    const hasPtSpecifics = /[ãõ]/i.test(lastUserMsg) || 
-      /\b(não|orçamento|funilaria|martelinho|amassado|obrigado|obrigada|conserto)\b/i.test(lastUserMsg.toLowerCase());
     
-    const isPt = isExplicitPt || (!isExplicitEs && hasPtSpecifics);
+    const isExplicitEn = language === 'en';
+    const isExplicitPt = language === 'pt';
+    const isExplicitEs = language === 'es';
 
-    const systemInstruction = isPt
+    let activeLanguage: 'en' | 'pt' | 'es' = 'es';
+    if (isExplicitEn) {
+      activeLanguage = 'en';
+    } else if (isExplicitPt) {
+      activeLanguage = 'pt';
+    } else if (isExplicitEs) {
+      activeLanguage = 'es';
+    } else {
+      if (/[ãõ]/i.test(lastUserMsg) || /\b(não|orçamento|funilaria|martelinho|amassado|obrigado|obrigada|conserto)\b/i.test(lastUserMsg.toLowerCase())) {
+        activeLanguage = 'pt';
+      } else if (/\b(hello|hi|quote|paint|bumper|dent|fender|scratch|car|repair|warranty|cost|price|english)\b/i.test(lastUserMsg.toLowerCase())) {
+        activeLanguage = 'en';
+      } else {
+        activeLanguage = 'es';
+      }
+    }
+
+    const systemInstruction = activeLanguage === 'en'
+      ? buildEnglishSystemInstruction(workshop)
+      : activeLanguage === 'pt'
       ? buildPortugueseSystemInstruction(workshop)
       : buildSystemInstruction(workshop);
 
     if (!ai) {
-      const lastUserMsg = messages[messages.length - 1]?.content || '';
-      const fallbackText = generateFallbackResponse(lastUserMsg, workshop, messages.length);
+      const fallbackText = generateFallbackResponse(lastUserMsg, workshop, messages.length, activeLanguage);
       return res.json({ text: fallbackText, modelUsed: 'system-fallback' });
     }
 
@@ -236,9 +260,11 @@ app.post('/api/chat', async (req, res) => {
         });
       }
 
-      if (isPt && i === chatTurns.length - 1) {
-        parts.push({ text: `${msg.content}\n\n[INSTRUÇÃO DO SISTEMA: Responda em PORTUGUÊS técnico de alto padrão.]` });
-      } else if (!isPt && i === chatTurns.length - 1) {
+      if (activeLanguage === 'en' && i === chatTurns.length - 1) {
+        parts.push({ text: `${msg.content}\n\n[SYSTEM INSTRUCTION: Respond in professional, distinguished high-end ENGLISH as the Atelier Concierge.]` });
+      } else if (activeLanguage === 'pt' && i === chatTurns.length - 1) {
+        parts.push({ text: `${msg.content}\n\n[INSTRUÇÃO DO SISTEMA: Responda em PORTUGUÊS técnico de alto padrão como Concierge do Atelier.]` });
+      } else if (activeLanguage === 'es' && i === chatTurns.length - 1) {
         parts.push({ text: `${msg.content}\n\n[INSTRUCCIÓN DEL SISTEMA: Responde en ESPAÑOL distinguido de alta gama, con el trato refinado y pericial del Atelier.]` });
       } else {
         parts.push({ text: msg.content });
@@ -253,12 +279,12 @@ app.post('/api/chat', async (req, res) => {
     }
 
     if (contents.length === 0) {
-      const lastMsg = messages[messages.length - 1]?.content || 'Hola';
+      const lastMsg = messages[messages.length - 1]?.content || 'Hello';
       contents.push({ role: 'user', parts: [{ text: lastMsg }] });
     }
 
-    // Prioritize fastest, high-availability models with 5-second timeout
-    const candidateModels = ['gemini-flash-latest', 'gemini-3.1-flash-lite', 'gemini-3.8-flash'];
+    // Prioritize fastest, high-availability models with 5.5-second timeout
+    const candidateModels = ['gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash'];
     let replyText = '';
     let usedModel = '';
 
@@ -287,8 +313,7 @@ app.post('/api/chat', async (req, res) => {
     }
 
     if (!replyText) {
-      const lastUserMsg = messages[messages.length - 1]?.content || '';
-      replyText = generateFallbackResponse(lastUserMsg, workshop, messages.length);
+      replyText = generateFallbackResponse(lastUserMsg, workshop, messages.length, activeLanguage);
       usedModel = 'system-fallback';
     }
 
@@ -297,7 +322,8 @@ app.post('/api/chat', async (req, res) => {
     console.error('Error in /api/chat:', error);
     const workshop = req.body.workshopInfo || {};
     const lastUserMsg = req.body.messages?.[req.body.messages?.length - 1]?.content || '';
-    const fallbackText = generateFallbackResponse(lastUserMsg, workshop, req.body.messages?.length || 1);
+    const lang = req.body.language || 'es';
+    const fallbackText = generateFallbackResponse(lastUserMsg, workshop, req.body.messages?.length || 1, lang);
     return res.json({ text: fallbackText, modelUsed: 'system-fallback-error' });
   }
 });
@@ -305,7 +331,9 @@ app.post('/api/chat', async (req, res) => {
 // POST /api/analyze-damage
 app.post('/api/analyze-damage', async (req, res) => {
   try {
-    const { imageBase64, mimeType = 'image/jpeg', description = '', workshopInfo } = req.body;
+    const { imageBase64, mimeType = 'image/jpeg', description = '', language = 'es', workshopInfo } = req.body;
+    const isEn = language === 'en';
+    const isPt = language === 'pt';
 
     if (!imageBase64) {
       return res.status(400).json({ error: 'Se requiere una imagen en base64 para el análisis de daño' });
@@ -315,33 +343,42 @@ app.post('/api/analyze-damage', async (req, res) => {
 
     if (!ai) {
       return res.json({
-        panelIdentified: 'Panel de carrocería (inspección visual fotográfica)',
+        panelIdentified: isEn ? 'Exterior Body Panel' : isPt ? 'Painel de Carroceria Exterior' : 'Panel de carrocería exterior',
         severity: 'Moderada',
-        suggestedProcess: 'Desabollado de chapa, preparación de superficie con primer epóxico y aplicación de pintura bicapa con barniz de alto sólidos en cabina presurizada.',
-        estimatedDays: '3 a 4 días hábiles',
-        warranty: '12 meses de garantía escrita de fábrica',
-        technicalNotes: 'Se observa deformación en el paño. Requiere verificar anclajes plásticos internos y posible desmontaje para escaneo de sensores.',
+        suggestedProcess: isEn
+          ? 'Artisan PDR dent removal or surface preparation with epoxy primer and oven-baked multi-stage paint in pressurized sterile booth.'
+          : isPt
+          ? 'Desamassamento artesanal com técnica PDR ou preparação com primer epóxi e pintura em estufa térmica pressurizada.'
+          : 'Desabollado de chapa, preparación de superficie con primer epóxico y aplicación de pintura bicapa con barniz de alto sólidos en cabina presurizada.',
+        estimatedDays: isEn ? '3 to 4 business days' : isPt ? '3 a 4 dias úteis' : '3 a 4 días hábiles',
+        warranty: workshopInfo?.warranty || (isEn ? '12-Month certified written warranty' : isPt ? '12 meses de garantia escrita' : '12 meses de garantía certificada por escrito'),
+        technicalNotes: isEn
+          ? 'Preliminary optical inspection. In-person micrometer paint thickness check and interior mounting clip inspection recommended at the atelier.'
+          : isPt
+          ? 'Inspeção visual preliminar por imagem digital. Recomenda-se aferição presencial de espessura de verniz e travas internas no atelier.'
+          : 'Se observa deformación en el paño. Requiere verificar anclajes plásticos internos y posible desmontaje para escaneo de sensores.',
         requiresDisassembly: true,
       });
     }
 
     const promptText = `
-Eres el perito técnico automotriz jefe de chapa y pintura.
-Analiza la fotografía adjunta del vehículo con daño:
-Descripción del cliente: "${description}"
+You are the Chief Automotive Damage Appraiser of a luxury body and paint atelier.
+Analyze the attached photo of the damaged vehicle:
+Client note / details: "${description}"
+Output Language: ${isEn ? 'ENGLISH' : isPt ? 'PORTUGUESE' : 'SPANISH'}
 
-Devuelve un análisis técnico objetivo en formato JSON con la siguiente estructura exacta:
-- panelIdentified: Nombre técnico del paño o pieza afectada (ej: "Guardabarros delantero derecho", "Puerta del conductor", "Paragolpes trasero").
-- severity: Nivel de daño ("Leve", "Moderada", "Grave", "Estructural").
-- suggestedProcess: Proceso técnico recomendado (ej: "Desabollado sin pintar (PDR/Sacabollos)", "Enderezado de chapa + pintura al horno", "Sustitución de pieza y cuadratura").
-- estimatedDays: Plazo promedio estimado aproximado (ej: "1 a 2 días hábiles", "3 a 4 días hábiles").
-- warranty: Cobertura de garantía (ej: "12 meses de garantía escrita en pintura y mano de obra").
-- technicalNotes: Observaciones técnicas sobre la pintura, posibles daños ocultos, clips o anclajes a revisar.
-- requiresDisassembly: true si requiere desmontar panel o paragolpes, false si es trabajo directo.
+Return an objective technical appraisal in exact JSON structure:
+- panelIdentified: Specific technical name of the affected panel (e.g. "Front right fender", "Driver door", "Rear bumper assembly").
+- severity: Damage severity rating ("Leve", "Moderada", "Grave", "Estructural").
+- suggestedProcess: Recommended technical restoration process (e.g. "Artisan PDR Paintless Dent Repair", "Precision bodywork + pressurized oven-baked painting", "OEM component replacement & alignment").
+- estimatedDays: Estimated atelier completion time (e.g. "1 to 2 business days", "3 to 4 business days").
+- warranty: Warranty coverage (e.g. "12-Month certified written warranty on paint and labor").
+- technicalNotes: Detailed observations on paint layer, clear coat integrity, inner clips or structural alignment to check.
+- requiresDisassembly: boolean (true if bumper or panel unbolting is required, false if direct repair).
 `;
 
     let parsed: any = null;
-    const candidateModels = ['gemini-flash-latest', 'gemini-3.8-flash'];
+    const candidateModels = ['gemini-3.1-flash-lite', 'gemini-flash-latest', 'gemini-3.8-flash'];
 
     for (const model of candidateModels) {
       try {
@@ -398,12 +435,20 @@ Devuelve un análisis técnico objetivo en formato JSON con la siguiente estruct
 
     if (!parsed) {
       parsed = {
-        panelIdentified: 'Panel de carrocería exterior',
+        panelIdentified: isEn ? 'Exterior Body Panel' : isPt ? 'Painel de Carroceria Exterior' : 'Panel de carrocería exterior',
         severity: 'Moderada',
-        suggestedProcess: 'Desabollado de chapa, preparación con primer epóxico y pintura bicapa al horno.',
-        estimatedDays: '3 a 4 días hábiles',
-        warranty: '12 meses de garantía escrita',
-        technicalNotes: 'Inspección preliminar por imagen. Se corroborará el anclaje interior al ingresar el vehículo al taller.',
+        suggestedProcess: isEn
+          ? 'Artisan PDR dent removal or surface preparation with epoxy primer and oven-baked multi-stage paint.'
+          : isPt
+          ? 'Desamassamento artesanal com técnica PDR ou preparação com primer epóxi e pintura em estufa térmica pressurizada.'
+          : 'Desabollado de chapa, preparación con primer epóxico y pintura bicapa al horno.',
+        estimatedDays: isEn ? '3 to 4 business days' : isPt ? '3 a 4 dias úteis' : '3 a 4 días hábiles',
+        warranty: workshopInfo?.warranty || (isEn ? '12-Month certified written warranty' : isPt ? '12 meses de garantia escrita' : '12 meses de garantía certificada por escrito'),
+        technicalNotes: isEn
+          ? 'Preliminary optical inspection. Panel gaps and inner structural clips will be validated upon vehicle check-in at the atelier.'
+          : isPt
+          ? 'Inspeção visual preliminar por imagem digital. Recomenda-se aferição presencial de espessura de verniz e travas internas no atelier.'
+          : 'Inspección preliminar por imagen. Se corroborará el anclaje interior al ingresar el vehículo al taller.',
         requiresDisassembly: true,
       };
     }
@@ -411,35 +456,47 @@ Devuelve un análisis técnico objetivo en formato JSON con la siguiente estruct
     return res.json(parsed);
   } catch (error: any) {
     console.error('Error in /api/analyze-damage:', error);
+    const isEn = req.body.language === 'en';
+    const isPt = req.body.language === 'pt';
     return res.json({
-      panelIdentified: 'Carrocería exterior',
+      panelIdentified: isEn ? 'Exterior Bodywork' : isPt ? 'Carroceria Exterior' : 'Carrocería exterior',
       severity: 'Moderada',
-      suggestedProcess: 'Tratamiento de chapa y pintura al horno con calibración de colorimetría computarizada.',
-      estimatedDays: '3 a 4 días hábiles',
-      warranty: '12 meses de garantía escrita',
-      technicalNotes: 'Estimación preliminar. La comprobación física en taller determinará si hay afectación en nervaduras o fijaciones.',
+      suggestedProcess: isEn
+        ? 'Precision body restoration and oven-baked painting with digital spectrophotometer color calibration.'
+        : isPt
+        ? 'Funilaria de precisão e pintura em estufa térmica com colorimetria digital computadorizada.'
+        : 'Tratamiento de chapa y pintura al horno con calibración de colorimetría computarizada.',
+      estimatedDays: isEn ? '3 to 4 business days' : isPt ? '3 a 4 dias úteis' : '3 a 4 días hábiles',
+      warranty: isEn ? '12-Month certified written warranty' : isPt ? '12 meses de garantia escrita' : '12 meses de garantía certificada por escrito',
+      technicalNotes: isEn
+        ? 'Preliminary appraisal. Physical atelier inspection will determine structural integrity and inner reinforcement condition.'
+        : isPt
+        ? 'Estimativa preliminar. A checagem física no atelier determinará a necessidade de ajuste em reforços e travas.'
+        : 'Estimación preliminar. La comprobación física en taller determinará si hay afectación en nervaduras o fijaciones.',
       requiresDisassembly: true,
     });
   }
 });
 
-// Start Express + Vite server
+// Configure Vite middleware in development
 async function startServer() {
-  if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.resolve(__dirname, 'dist')));
-    app.get('*', (req, res) => {
-      res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
-    });
-  } else {
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (!isProduction) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
+  } else {
+    app.use(express.static(path.resolve(__dirname, 'dist')));
+    app.get('*', (_req, res) => {
+      res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+    });
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running at http://0.0.0.0:${PORT}`);
   });
 }
 

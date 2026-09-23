@@ -25,10 +25,39 @@ export const InsuranceView: React.FC<InsuranceViewProps> = ({
   language,
   onNavigateToBooking,
 }) => {
+  const isEn = language === 'en';
   const isPt = language === 'pt';
   const cleanPhone = workshopInfo.whatsapp.replace(/\D/g, '');
 
-  const steps = isPt
+  const steps = isEn
+    ? [
+        {
+          step: '01',
+          title: 'Insurance Claim Registration',
+          desc: 'File the incident claim with your insurance company to obtain your official claim number.',
+        },
+        {
+          step: '02',
+          title: 'Atelier Technical Inspection',
+          desc: 'Vehicle check-in inside our private booth for photographic recording of visible and concealed structural damage.',
+        },
+        {
+          step: '03',
+          title: 'Certified OEM Estimate',
+          desc: 'We prepare the official computerized quote with original factory part codes for the insurance adjuster.',
+        },
+        {
+          step: '04',
+          title: 'Approval & Oven Restoration',
+          desc: 'Upon authorization, our master craftsmen execute precision bodywork and painting in pressurized sterile spray booth.',
+        },
+        {
+          step: '05',
+          title: 'Final Audit & 12-Month Delivery',
+          desc: 'Spectrophotometric tone check and vehicle handover accompanied by written 12-month certified warranty.',
+        },
+      ]
+    : isPt
     ? [
         {
           step: '01',
@@ -84,7 +113,22 @@ export const InsuranceView: React.FC<InsuranceViewProps> = ({
         },
       ];
 
-  const faqs = isPt
+  const faqs = isEn
+    ? [
+        {
+          q: 'Do I have the legal right to choose this atelier if my insurance recommends another shop?',
+          a: 'Yes, absolutely. Insurance laws safeguard the policyholder’s unrestricted freedom of choice regarding repair facility. You can select our atelier to ensure your vehicle retains original factory specifications.',
+        },
+        {
+          q: 'Does the atelier handle all paperwork and communications with the insurance adjuster?',
+          a: 'Yes. We compile the comprehensive technical dossier, structural measurements, and communicate directly with the insurance adjuster to guarantee genuine OEM parts.',
+        },
+        {
+          q: 'How is the insurance deductible handled?',
+          a: 'If your policy has a deductible, it is settled directly at our atelier upon collecting your completely restored vehicle.',
+        },
+      ]
+    : isPt
     ? [
         {
           q: 'Tenho o direito de escolher este atelier mesmo se a seguradora sugerir outro?',
@@ -122,13 +166,15 @@ export const InsuranceView: React.FC<InsuranceViewProps> = ({
           <div className="space-y-2">
             <span className="text-xs uppercase font-bold tracking-widest text-amber-400 font-serif-luxury flex items-center gap-1.5">
               <Crown className="w-4 h-4 text-amber-400" />
-              {isPt ? 'Gestão Pericial de Sinistros Premium' : 'Gestión Pericial de Siniestros & Seguros Todo Riesgo'}
+              {isEn ? 'High-End Insurance Claims Management' : isPt ? 'Gestão Pericial de Sinistros Premium' : 'Gestión Pericial de Siniestros & Seguros Todo Riesgo'}
             </span>
             <h2 className="text-xl sm:text-3xl font-bold font-serif-luxury text-white tracking-wide">
-              {isPt ? 'Sinistros, Colisões & Seguradoras' : 'Gestión de Siniestros & Aseguradoras Premium'}
+              {isEn ? 'Collision & Insurance Claims Advisory' : isPt ? 'Sinistros, Colisões & Seguradoras' : 'Gestión de Siniestros & Aseguradoras Premium'}
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed font-light">
-              {isPt
+              {isEn
+                ? 'We assist luxury and premium vehicle owners end-to-end through technical appraisals, insurance claims, and pristine execution inside our sterile baking booth with genuine factory parts.'
+                : isPt
                 ? 'Acompanhamos você desde a vistoria fotográfica até a liberação do reparo pela seguradora, com peças originais e pintura em estufa térmica de padrão oficial.'
                 : 'Asistimos integralmente a propietarios de vehículos de alta gama en la gestión de siniestros, confección de carpetas periciales y ejecución en cabina presurizada con repuestos originales.'}
             </p>
@@ -140,12 +186,14 @@ export const InsuranceView: React.FC<InsuranceViewProps> = ({
               className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-bold py-3.5 px-5 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 font-serif-luxury tracking-wider"
             >
               <Calendar className="w-4 h-4" />
-              <span>{isPt ? 'Agendar Peritagem' : 'Agendar Cita en Atelier'}</span>
+              <span>{isEn ? 'Book Claim Appraisal' : isPt ? 'Agendar Peritagem' : 'Agendar Cita en Atelier'}</span>
             </button>
 
             <a
               href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(
-                isPt
+                isEn
+                  ? `Hello ${workshopInfo.name}, I need technical advice to file an insurance claim for my vehicle.`
+                  : isPt
                   ? `Olá ${workshopInfo.name}, preciso de orientação técnica para acionar o seguro do meu veículo.`
                   : `Estimado equipo de ${workshopInfo.name}, preciso asesoramiento pericial para gestionar un siniestro con mi aseguradora.`
               )}`}
@@ -154,7 +202,7 @@ export const InsuranceView: React.FC<InsuranceViewProps> = ({
               className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-95 text-white font-bold py-3.5 px-5 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40"
             >
               <Phone className="w-4 h-4 text-emerald-200" />
-              <span>{isPt ? 'WhatsApp do Perito' : 'Hablar con Perito VIP'}</span>
+              <span>{isEn ? 'Speak with Claim Appraiser' : isPt ? 'WhatsApp do Perito' : 'Hablar con Perito VIP'}</span>
             </a>
           </div>
         </div>
@@ -164,7 +212,7 @@ export const InsuranceView: React.FC<InsuranceViewProps> = ({
       <div className="bg-[#0b0e13] border border-[#221c12] rounded-2xl p-6 shadow-xl">
         <h3 className="text-xs uppercase font-bold tracking-widest text-slate-400 mb-3.5 flex items-center gap-2 font-serif-luxury">
           <Building2 className="w-4 h-4 text-amber-400" />
-          <span>{isPt ? 'Companhias de Seguros com as quais operamos' : 'Compañías Aseguradoras con Homologación Técnica'}</span>
+          <span>{isEn ? 'Approved Insurance Partners & Direct Billing' : isPt ? 'Companhias de Seguros com as quais operamos' : 'Compañías Aseguradoras con Homologación Técnica'}</span>
         </h3>
         <div className="flex flex-wrap gap-2.5">
           {workshopInfo.insurances.map((ins, idx) => (
@@ -183,10 +231,14 @@ export const InsuranceView: React.FC<InsuranceViewProps> = ({
       <div className="bg-[#0b0e13] border border-[#221c12] rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
         <div>
           <h3 className="text-lg sm:text-xl font-bold font-serif-luxury text-white tracking-wide">
-            {isPt ? 'Protocolo de Reparo por Sinistro' : 'Protocolo Pericial de Reparación por Siniestro'}
+            {isEn ? 'Insurance Claim Repair Protocol' : isPt ? 'Protocolo de Reparo por Sinistro' : 'Protocolo Pericial de Reparación por Siniestro'}
           </h3>
           <p className="text-xs text-slate-400 mt-1 font-light">
-            {isPt ? 'Garantia de agilidade técnica e preservação do valor de mercado' : 'Riguroso proceso técnico para garantizar celeridad pericial y restitución a estado de fábrica'}
+            {isEn
+              ? 'Rigorous technical process ensuring claim approval speed and complete OEM value preservation'
+              : isPt
+              ? 'Garantia de agilidade técnica e preservação do valor de mercado'
+              : 'Riguroso proceso técnico para garantizar celeridad pericial y restitución a estado de fábrica'}
           </p>
         </div>
 
@@ -214,7 +266,7 @@ export const InsuranceView: React.FC<InsuranceViewProps> = ({
       <div className="bg-[#0b0e13] border border-[#221c12] rounded-2xl p-6 shadow-xl space-y-4">
         <h3 className="text-base font-bold font-serif-luxury text-white flex items-center gap-2 tracking-wide">
           <HelpCircle className="w-5 h-5 text-amber-400" />
-          <span>{isPt ? 'Perguntas Frequentes sobre Sinistros' : 'Preguntas Frecuentes sobre Siniestros & Coberturas'}</span>
+          <span>{isEn ? 'Frequently Asked Questions on Claims' : isPt ? 'Perguntas Frequentes sobre Sinistros' : 'Preguntas Frecuentes sobre Siniestros & Coberturas'}</span>
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

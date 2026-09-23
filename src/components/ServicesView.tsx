@@ -25,10 +25,44 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
   language,
   onNavigateToBooking,
 }) => {
+  const isEn = language === 'en';
   const isPt = language === 'pt';
   const cleanPhone = workshopInfo.whatsapp.replace(/\D/g, '');
 
-  const detailedServices = isPt
+  const detailedServices = isEn
+    ? [
+        {
+          title: 'Oven-Baked Paint in Sterile Pressurized Spray Booth',
+          desc: 'Sterile atmosphere with molecular particulate filtration and thermal infrared curing. Premium PPG and Glasurit lacquers yielding a mirror-like finish meeting dealership showroom standards.',
+          icon: <Flame className="w-5 h-5 text-amber-400" />,
+        },
+        {
+          title: 'Artisan PDR (Paintless Dent Repair)',
+          desc: 'Goldsmith precision manual technique for removing dents and hail damage without body filler or repainting, preserving original factory OEM virgin clear coat.',
+          icon: <Wrench className="w-5 h-5 text-amber-400" />,
+        },
+        {
+          title: 'Computerized Spectrophotometer Colorimetry',
+          desc: 'Molecular optical reading of vehicle hue keyed to manufacturer VIN code, guaranteeing a seamless chromatic match indistinguishable from factory paint.',
+          icon: <Eye className="w-5 h-5 text-amber-400" />,
+        },
+        {
+          title: 'Laser Unibody & Chassis Frame Alignment',
+          desc: 'Millimeter restoration of geometric suspension coordinates and structural frame points post-collision, restoring certified crash safety integrity.',
+          icon: <Layers className="w-5 h-5 text-amber-400" />,
+        },
+        {
+          title: '9H Ceramic Glass Coating & Concours Detailing',
+          desc: 'Nanoscale hydrophobic paint shield offering extreme chemical and UV protection that enhances gloss depth and prevents micro-swirls.',
+          icon: <Sparkles className="w-5 h-5 text-amber-400" />,
+        },
+        {
+          title: 'Comprehensive Insurance Claim Management',
+          desc: 'Specialized support for insurance claims with authorized genuine OEM replacement parts, documented photo dossiers, and written 12-month warranty.',
+          icon: <ShieldCheck className="w-5 h-5 text-amber-400" />,
+        },
+      ]
+    : isPt
     ? [
         {
           title: 'Pintura Térmica em Estufa Pressurizada',
@@ -101,13 +135,15 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
         <div className="space-y-2 relative z-10 max-w-3xl">
           <span className="text-xs uppercase font-bold tracking-widest text-amber-400 font-serif-luxury flex items-center gap-1.5">
             <Crown className="w-4 h-4 text-amber-400" />
-            {isPt ? 'Tecnologia de Ponta & Alta Precisão' : 'Instalaciones de Atelier & Maestría Artesanal'}
+            <span>{isEn ? 'Cutting-Edge Technology & Master Craft' : isPt ? 'Tecnologia de Ponta & Alta Precisão' : 'Instalaciones de Atelier & Maestría Artesanal'}</span>
           </span>
           <h2 className="text-xl sm:text-3xl font-bold font-serif-luxury text-white tracking-wide">
-            {isPt ? 'Infraestrutura & Maestria Técnica' : 'Maestría Técnica & Tecnología de Carrocería'}
+            {isEn ? 'Technical Mastery & Bodywork Facilities' : isPt ? 'Infraestrutura & Maestria Técnica' : 'Maestría Técnica & Tecnología de Carrocería'}
           </h2>
           <p className="text-xs sm:text-sm text-slate-300 font-light leading-relaxed">
-            {isPt
+            {isEn
+              ? 'We combine state-of-the-art pressurized spray booths, digital spectrophotometry, and master artisan craftsmanship to ensure concourse-grade finishes on luxury vehicles.'
+              : isPt
               ? 'Conjugamos tecnologia de última geração em estufas pressurizadas, espectrofotometria digital e técnicas artesanais para entregar resultados de nível de concurso.'
               : 'Combinamos tecnología de cabina presurizada alemana, espectrofotometría computarizada y mano de obra pericial para garantizar acabados de exposición en vehículos de alta gama.'}
           </p>
@@ -134,7 +170,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
             </div>
             <div className="pt-2 border-t border-[#1e1910] text-[11px] text-amber-400/80 font-medium flex items-center gap-1">
               <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
-              <span>{isPt ? 'Garantia oficial de 12 meses' : 'Garantía certificada de 12 meses'}</span>
+              <span>{isEn ? '12-Month certified warranty' : isPt ? 'Garantia oficial de 12 meses' : 'Garantía certificada de 12 meses'}</span>
             </div>
           </div>
         ))}
@@ -148,13 +184,15 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
           </div>
           <div className="space-y-1">
             <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400 font-serif-luxury">
-              {isPt ? 'Compromisso Oficial do Atelier' : 'Compromiso Pericial del Atelier'}
+              {isEn ? 'Official Atelier Pledge' : isPt ? 'Compromisso Oficial do Atelier' : 'Compromiso Pericial del Atelier'}
             </span>
             <h3 className="text-lg sm:text-xl font-bold font-serif-luxury text-white">
               {workshopInfo.warranty}
             </h3>
             <p className="text-xs text-slate-300 font-light leading-relaxed max-w-xl">
-              {isPt
+              {isEn
+                ? 'Every vehicle departing our atelier is accompanied by a written warranty certificate covering chemical clear coat bonding, showroom shine, and UV color durability.'
+                : isPt
                 ? 'Todos os serviços de funilaria e pintura contam com termo de garantia formal por escrito cobrindo aderência, brilho e durabilidade contra desbotamento.'
                 : 'Cada vehículo retirado de nuestras instalaciones cuenta con certificado pericial por escrito que respalda la adherencia química de la laca, brillo de fábrica y durabilidad UV.'}
             </p>
@@ -167,12 +205,14 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
             className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 active:scale-95 text-slate-950 font-bold py-3.5 px-5 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20 font-serif-luxury tracking-wider whitespace-nowrap"
           >
             <Calendar className="w-4 h-4" />
-            <span>{isPt ? 'Agendar Cita no Atelier' : 'Agendar Cita en Atelier'}</span>
+            <span>{isEn ? 'Book Atelier Visit' : isPt ? 'Agendar Cita no Atelier' : 'Agendar Cita en Atelier'}</span>
           </button>
 
           <a
             href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(
-              isPt
+              isEn
+                ? `Hello ${workshopInfo.name}, I would like to inquire further about technical warranties and procedures at your atelier.`
+                : isPt
                 ? `Olá ${workshopInfo.name}, gostaria de saber mais sobre as garantias e procedimentos técnicos da oficina.`
                 : `Estimado equipo de ${workshopInfo.name}, deseo consultar detalles sobre los procedimientos técnicos y garantías de atelier.`
             )}`}
@@ -181,7 +221,7 @@ export const ServicesView: React.FC<ServicesViewProps> = ({
             className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 active:scale-95 text-white font-bold py-3.5 px-5 rounded-xl text-xs sm:text-sm transition flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/40 whitespace-nowrap"
           >
             <Phone className="w-4 h-4 text-emerald-200" />
-            <span>{isPt ? 'WhatsApp do Atelier' : 'Concierge WhatsApp'}</span>
+            <span>{isEn ? 'WhatsApp Concierge' : isPt ? 'WhatsApp do Atelier' : 'Concierge WhatsApp'}</span>
           </a>
         </div>
       </div>
